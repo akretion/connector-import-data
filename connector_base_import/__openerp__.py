@@ -19,25 +19,21 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
-
-{'name': 'connector_import',
- 'version': '0.0.1',
- 'author': 'Akretion',
- 'website': 'www.akretion.com',
- 'license': 'AGPL-3',
- 'category': 'Generic Modules',
- 'description': """
- 
- """,
- 'depends': [
-    'connector',
- ],
- 'data': [
- ],
- 'installable': True,
- 'application': True,
+{
+    'name': 'connector_base_import',
+    'version': '0.0.1',
+    'author': 'Akretion',
+    'website': 'www.akretion.com',
+    'license': 'AGPL-3',
+    'category': 'Generic Modules',
+    'description': """
+This module enhance base_import in order to run asynchronously and atomically imports. It uses connector in order to create an import job by row from a csv file.
+    """,
+    'depends': [
+       'connector',
+       'base_import',
+    ],
+    'data': [],
+    'installable': True,
+    'application': True,
 }
-
-
-
-

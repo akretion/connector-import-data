@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+
+        <record id="view_queue_job_form" model="ir.ui.view">
+            <field name="model">queue.job</field>
+            <field name="inherit_id" ref="connector.view_queue_job_form" />
+            <field name="arch" type="xml">
+                <field name="worker_id" position="after">
+                    <field name="buffer_id" attrs="{'invisible': [('buffer_id','=', False)]}"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="view_connector_buffer_form" model="ir.ui.view">
+            <field name="model">connector.buffer</field>
+            <field name="arch" type="xml">
+                <form string="Buffer">
+                    <field name="data_text"/>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</openerp>
+

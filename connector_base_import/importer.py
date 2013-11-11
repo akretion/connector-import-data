@@ -24,7 +24,7 @@
 from openerp.osv import orm
 from openerp.addons.connector.queue.job import job
 from openerp.addons.connector.session import ConnectorSession
-
+from openerp.addons.connector.exception import FailedJobError
 
 CONNECTOR_IMPORT_KEY = 'connector_import'
 
@@ -49,22 +49,33 @@ original_load = orm.BaseModel.load
 
 
 @job
-def import_one_line(session, model_name, fields, line):
+def import_one_line(session, model_name, fields, buffer_id):
     model = session.pool[model_name]
-    return original_load(model, session.cr, session.uid, fields, [line],
+    connectorBuffer = session.browse('connector.buffer', buffer_id)
+    line = [connectorBuffer.data[field] for field in fields]
+    result = original_load(model, session.cr, session.uid, fields, [line],
                          context=session.context)
-
+    error_message = [message['message'] for message in result['messages']
+                    if message['type'] == 'error']
+    if error_message:
+        raise FailedJobError('\n'.join(error_message))
+    return result
 
 def load(self, cr, uid, fields, data, context=None):
     if context is None:
         context = {}
-
     module_installed = bool(self.pool[connector_base_import_installed._name])
     connector_import = context.get(CONNECTOR_IMPORT_KEY, False)
     if module_installed and connector_import:
+        priority = 100
+        session = ConnectorSession(cr, uid, context)
         for line in data:
-            session = ConnectorSession(cr, uid, context)
-            import_one_line.delay(session, self._name, fields, line)
+            buffer_id = session.create('connector.buffer', {
+                'data': dict(zip(fields, line)),
+                })
+            session.context['buffer_id'] = buffer_id
+            import_one_line.delay(session, self._name, fields, buffer_id, priority=priority)
+            priority += 1
         return {'messages': []}
     return original_load(self, cr, uid, fields, data, context=context)
 

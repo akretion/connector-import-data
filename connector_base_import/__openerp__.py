@@ -30,7 +30,7 @@
 This module enhance base_import in order to run asynchronously and atomically imports. It uses connector in order to create an import job by row from a csv file.
     """,
     'depends': [
-       'connector',
+       'connector_buffer',
        'base_import',
     ],
     'data': [],

@@ -45,14 +45,17 @@ class connector_base_import(orm.TransientModel):
                                                      context=context)
 
 
-original_load = orm.BaseModel.load
 
+
+original_load = orm.BaseModel.load
 
 @job
 def import_one_line(session, model_name, fields, buffer_id):
     model = session.pool[model_name]
     connectorBuffer = session.browse('connector.buffer', buffer_id)
-    line = [connectorBuffer.data[field] for field in fields]
+    data = connectorBuffer.get_data(model_name)
+    fields, line = zip(*data.items())
+    session.context['connector_no_export'] = True
     result = original_load(model, session.cr, session.uid, fields, [line],
                          context=session.context)
     error_message = [message['message'] for message in result['messages']

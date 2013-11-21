@@ -52,6 +52,15 @@ class ConnectorBuffer(orm.Model):
             connector_buffer.write({'data_text': simplejson.loads(field_value)})
         return True
 
+    def get_data(self, cr, uid, ids, model, context=None):
+        """
+        Return the data from the store, can be inherited in order
+        to map the field
+        """
+        assert len(ids) ==1, 'Only one record can be processed'
+        connectorBuffer = self.browse(cr, uid, ids[0], context=context)
+        return connectorBuffer.data
+
     _columns = {
         'name': fields.char('Name'),
         'data': fields.serialized('Data'),

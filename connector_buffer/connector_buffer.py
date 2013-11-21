@@ -27,16 +27,6 @@ import simplejson
 class ConnectorBuffer(orm.Model):
     _name = 'connector.buffer'
     _description = 'connector buffer'
-    _rec_name='name'
-
-    def get_state(self, cr, uid, context=None):
-        return [
-            ('waiting', 'Waiting'),
-            ('done', 'Done'),
-        ]
-
-    def _get_state(self, cr, uid, context=None):
-        return self.get_state(cr, uid, context=context)
 
     def _get_resource(self, cr, uid, ids, field_name, arg, context=None):
         res = {}
@@ -44,8 +34,8 @@ class ConnectorBuffer(orm.Model):
             res[connector_buffer.id] = simplejson.dumps(connector_buffer.data)
         return res
 
-    def _set_resource(self, cr, uid, ids, field_name, field_value, arg, context=None):
-        res = {}
+    def _set_resource(self, cr, uid, ids, field_name, field_value, arg,
+                      context=None):
         if not isinstance(ids, [list, tuple]):
             ids = [ids]
         for connecteur_buffer in self.browse(cr, uid, ids, context=context):
@@ -57,14 +47,14 @@ class ConnectorBuffer(orm.Model):
         Return the data from the store, can be inherited in order
         to map the field
         """
-        assert len(ids) ==1, 'Only one record can be processed'
+        assert len(ids) == 1, 'Only one record can be processed'
         connectorBuffer = self.browse(cr, uid, ids[0], context=context)
         return connectorBuffer.data
 
     _columns = {
         'name': fields.char('Name'),
         'data': fields.serialized('Data'),
-        'data_text':fields.function(
+        'data_text': fields.function(
             _get_resource,
             fnct_inv=_set_resource,
             type="text",
@@ -73,11 +63,11 @@ class ConnectorBuffer(orm.Model):
 
     _defaults = {
         'name': 'buffer',
-        }
+    }
+
 
 class QueueJob(orm.Model):
     _inherit = 'queue.job'
-    
     _columns = {
         'buffer_id': fields.many2one('connector.buffer', 'Buffer'),
     }
@@ -92,4 +82,3 @@ class QueueJob(orm.Model):
             if job.buffer_id:
                 job.buffer_id.unlink()
         return super(QueueJob, self).unlink(cr, uid, ids, context=context)
-

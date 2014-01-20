@@ -53,7 +53,7 @@ original_load = orm.BaseModel.load
 def import_one_line(session, model_name, fields, buffer_id):
     model = session.pool[model_name]
     connectorBuffer = session.browse('connector.buffer', buffer_id)
-    data = connectorBuffer.get_data(model_name)
+    data = connectorBuffer.get_data(model_name, session.context)
     fields, line = zip(*data.items())
     session.context['connector_no_export'] = True
     result = original_load(model, session.cr, session.uid, fields, [line],

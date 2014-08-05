@@ -46,19 +46,18 @@ class ConnectorBuffer(orm.Model):
 
     def _set_resource(self, cr, uid, ids, field_name, field_value, arg, context=None):
         res = {}
-        if not isinstance(ids, [list, tuple]):
+        if not isinstance(ids, (list, tuple)):
             ids = [ids]
-        for connecteur_buffer in self.browse(cr, uid, ids, context=context):
-            connector_buffer.write({'data_text': simplejson.loads(field_value)})
+        for connector_buffer in self.browse(cr, uid, ids, context=context):
+            connector_buffer.write({'data': simplejson.loads(field_value)})
         return True
 
-    def get_data(self, cr, uid, ids, model, context=None):
+    def get_data(self, cr, uid, buffer_id, model, context=None):
         """
         Return the data from the store, can be inherited in order
         to map the field
         """
-        assert len(ids) ==1, 'Only one record can be processed'
-        connectorBuffer = self.browse(cr, uid, ids[0], context=context)
+        connectorBuffer = self.browse(cr, uid, buffer_id, context=context)
         return connectorBuffer.data
 
     _columns = {

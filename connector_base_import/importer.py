@@ -26,8 +26,11 @@ from openerp.addons.connector.queue.job import job
 from openerp.addons.connector.session import ConnectorSession
 from openerp.addons.connector.exception import FailedJobError
 
-CONNECTOR_IMPORT_KEY = 'connector_import'
 
+CONNECTOR_IMPORT_KEY = 'connector_import'
+INIT_PRIORITY = 100
+
+SKIP_MODEL = []
 
 class connector_base_import_installed(orm.AbstractModel):
     _name = 'connector_base_import.connector'
@@ -52,10 +55,12 @@ original_load = orm.BaseModel.load
 @job
 def import_one_line(session, model_name, fields, buffer_id):
     model = session.pool[model_name]
-    connectorBuffer = session.browse('connector.buffer', buffer_id)
-    data = connectorBuffer.get_data(model_name, session.context)
+    buffer_obj = session.pool['connector.buffer']
+    if session.context is None:
+        session.context = {}
+    data = buffer_obj.get_data(session.cr, session.uid, buffer_id, model_name,
+                               context=session.context)
     fields, line = zip(*data.items())
-    session.context['connector_no_export'] = True
     result = original_load(model, session.cr, session.uid, fields, [line],
                          context=session.context)
     error_message = [message['message'] for message in result['messages']
@@ -69,8 +74,8 @@ def load(self, cr, uid, fields, data, context=None):
         context = {}
     module_installed = bool(self.pool[connector_base_import_installed._name])
     connector_import = context.get(CONNECTOR_IMPORT_KEY, False)
-    if module_installed and connector_import:
-        priority = 100
+    if module_installed and connector_import and not self._name in SKIP_MODEL:
+        priority = INIT_PRIORITY
         session = ConnectorSession(cr, uid, context)
         for line in data:
             buffer_id = session.create('connector.buffer', {

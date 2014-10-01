@@ -36,7 +36,8 @@
      'connector',
  ],
  'data': [
-    'connector_buffer_view.xml',
+     'connector_buffer_view.xml',
+     'security/ir.model.access.csv',
  ],
  'installable': True,
  'application': True,

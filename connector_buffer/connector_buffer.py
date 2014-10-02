@@ -42,7 +42,7 @@ class ConnectorBuffer(orm.Model):
             connector_buffer.write({'data': simplejson.loads(field_value)})
         return True
 
-    def get_data(self, cr, uid, buffer_id, model, context=None):
+    def get_data(self, cr, uid, buffer_id, model=None, context=None):
         """
         Return the data from the store, can be inherited in order
         to map the field

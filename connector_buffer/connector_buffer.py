@@ -36,7 +36,7 @@ class ConnectorBuffer(orm.Model):
 
     def _set_resource(self, cr, uid, ids, field_name, field_value, arg,
                       context=None):
-        if not isinstance(ids, [list, tuple]):
+        if not isinstance(ids, (list, tuple)):
             ids = [ids]
         for connector_buffer in self.browse(cr, uid, ids, context=context):
             connector_buffer.write({'data': simplejson.loads(field_value)})
